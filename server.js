@@ -24,19 +24,34 @@ const permissionMiddleware = require("./middleware/permissionMiddleware");
 const inventoryRoutes = require("./routes/inventoryRoute");
 const superAdminRoutes = require("./routes/superAdminRoute");
 
+const allowedOrigins = [
+  "http://localhost:3000",              // local dev React
+  "https://epiqr-restaurants.netlify.app", // your dev Netlify
+  "https://indian-delights.netlify.app"    // your prod Netlify
+];
+
 const prodUI = "https://indian-delights.netlify.app";
 // const devUI = "http://localhost:3000";
-const devUI = "https://epiqr-restaurants.netlify.app/";
+const devUI = "https://epiqr-restaurants.netlify.app";
 
 const app = express();
 const server = http.createServer(app);
+// const io = new Server(server, {
+//   cors: {
+//     origin: devUI,
+//     // origin: prodUI,
+//     methods: ["GET", "POST", "PUT"],
+//   },
+// });
+
 const io = new Server(server, {
   cors: {
-    origin: devUI,
-    // origin: prodUI,
-    methods: ["GET", "POST", "PUT"],
+    origin: allowedOrigins,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
   },
 });
+
 
 // Middleware
 // app.use(cors());
@@ -53,9 +68,24 @@ io.on("connection", (socket) => {
   });
 });
 
+// app.use(
+//   cors({
+//     origin: [devUI, prodUI],
+//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+//     allowedHeaders: ["Content-Type", "Authorization"],
+//     credentials: true,
+//   })
+// );
+
 app.use(
   cors({
-    origin: [devUI, prodUI],
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS not allowed for this origin: " + origin));
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
@@ -93,5 +123,3 @@ mongoose
     );
   })
   .catch((err) => console.error("MongoDB connection error:", err));
-
-
