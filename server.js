@@ -26,7 +26,7 @@ const superAdminRoutes = require("./routes/superAdminRoute");
 
 const prodUI = "https://indian-delights.netlify.app";
 // const devUI = "http://localhost:3000";
-const devUI = "epiqr-restaurants.netlify.app";
+const devUI = "https://epiqr-restaurants.netlify.app/";
 
 const app = express();
 const server = http.createServer(app);
@@ -93,4 +93,5 @@ mongoose
     );
   })
   .catch((err) => console.error("MongoDB connection error:", err));
+
 
